@@ -31,15 +31,15 @@ class EmployeeController extends Controller
             return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('view', function($row){     
-                        $btn1 = '<a href="/users/'.$row->id.'" class="btn btn-primary btn-sm">View</a>';    
+                        $btn1 = '<a href="/users/'.$row->id.'" class="btn btn-primary btn-sm" title="View" target="_blank"><i class="fa fa-eye"></i></a>';    
                         return $btn1;
                     })
                     ->addColumn('edit', function($row){     
-                        $btn2 = '<a href="/users/'.$row->id.'/edit" class="btn btn-info btn-sm">Edit</a>'; 
+                        $btn2 = '<a href="/users/'.$row->id.'/edit" class="btn btn-info btn-sm" title="Edit" target="_blank"><i class="fa fa-pen"></i></a>'; 
                         return $btn2;
                     })
                     ->addColumn('delete', function($row){     
-                        $btn3 = '<a class="btn btn-danger btn-sm" onClick="deleteUser('.$row->id.')">Delete</a> ';
+                        $btn3 = '<a class="btn btn-danger btn-sm" onClick="deleteUser('.$row->id.')" title="Delete" ><i class="fa fa-trash"></i></a> ';
                         return $btn3;
                     })
                     ->rawColumns(['view','edit','delete'])                  
