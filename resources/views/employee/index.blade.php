@@ -57,9 +57,50 @@
                   </tbody>
                 </table>
 
+
+                    <!--  -->
+            <div class="modal fade viewEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="addReminderLable" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <form class="form" action="" method="POST">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Employee Details</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+
+                            <div class="text-center">
+                            
+                              <div id="img-view"></div>
+                          
+                            </div>
+                               
+                                <div class="form-group">
+                                    <label for="name">Name</label>
+                                    <span name="nameview" id="nameview" class="form-control"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Email</label>
+                                    <span name="emailview" id="emailview" class="form-control"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dob">Designation</label>
+                                    <span name="designationview" id="designationview" class="form-control"></span>
+                                </div>
+                                
+                            </div>
+                           
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!--  -->
+
                 
             <!--  -->
-            <div class="modal" tabindex="-1" role="dialog">
+            <div class="modal fade editEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="addReminderLable" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <form class="form" action="" method="POST">
                         <div class="modal-content">
@@ -190,6 +231,29 @@
                     return false;
                 })
         })
+
+        $(document).on('click','.btn-edit',function(){ 
+            var rowData =  table.row($(this).parents('tr')).data()            
+            form.find('input[name="id"]').val(rowData.id)
+            form.find('input[name="name"]').val(rowData.name)
+            form.find('input[name="email"]').val(rowData.email)
+            form.find('select[name="designation"]').val(rowData.des_id)  
+           
+        })
+
+        $(document).on('click','.btn-view',function(){ 
+            var rowData =  table.row($(this).parents('tr')).data() 
+            $("#nameview").text(rowData.name);
+            $("#emailview").text(rowData.email);
+            $("#designationview").text(rowData.designation);           
+            if(rowData.image == null){
+              var ur='{{ URL::asset('vendors/dist/img/user4-128x128.jpg') }}'
+            }else{             
+              var ur='{{ URL::asset('/storage/') }}' +'/'+ rowData.image
+            }            
+            $("#img-view").html('<img class="profile-user-img img-fluid img-circle" src="' + ur + '" />');           
+           
+        })
       
       
        
@@ -198,24 +262,26 @@
             form.find('input[name="id"]').val(rowData.id)
             form.find('input[name="name"]').val(rowData.name)
             form.find('input[name="email"]').val(rowData.email)
-            form.find('input[name="designation"]').val(rowData.designation)
-            modal.modal()
+            form.find('select[name="designation"]').val(rowData.des_id)  
+           
         })
 
         btnUpdate.click(function(){
             if(!confirm("Are you sure?")) return;
-            var formData = form.serialize()+'&_method=PUT&_token='+token
+            var tok = $('meta[name="csrf-token"]').attr('content');
+            var formData = form.serialize()+'&_method=PUT&_token='+tok
             var updateId = form.find('input[name="id"]').val()
+           
             $.ajax({
                 type: "POST",
-                url: "/" + updateId,
+                url: "/sfsf/" + updateId,
                 data: formData,
-                success: function (data) {
-                    if (data.success) {
-                        table.draw();
-                        modal.modal('hide');
-                    }
-                }
+                // success: function (data) {
+                //     if (data.success) {
+                //         table.draw();
+                //         modal.modal('hide');
+                //     }
+                // }
              }); //end ajax
         })
             

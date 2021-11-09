@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\UserRegistration;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 use DataTables;
 
@@ -22,24 +23,28 @@ class EmployeeController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
+    {    
         if ($request->ajax()) {    
-            $data = User::join('designations','designations.id','=','users.designation_id')->select('users.id','users.name','users.email','designations.name as designation')->get();
+            $data = User::join('designations','designations.id','=','users.designation_id')
+                        ->select('users.id','users.name','users.email','designations.name as designation','designations.id as des_id','users.image')
+                        ->where('users.id','<>',Auth::user()->id)
+                        ->get();
             return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('view', function($row){     
-                        $btn1 = '<a href="#" class="btn btn-primary btn-sm btn-view" title="View" ><i class="fa fa-eye"></i></a>';    
+                        $btn1 = '<a href="#" data-toggle="modal" data-target=".viewEmployeeModal" class="btn btn-primary btn-sm btn-view" title="View" ><i class="fa fa-eye"></i></a>';    
                         return $btn1;
                     })
                     ->addColumn('edit', function($row){ 
-                        $btn2 = '<a href="#" class="btn btn-info btn-sm btn-edit" title="Edit"><i class="fa fa-pen"></i></a> ';
+                        $btn2 = '<a href="#" data-toggle="modal" data-target=".editEmployeeModal" class="btn btn-info btn-sm btn-edit" title="Edit"><i class="fa fa-pen"></i></a> ';
                         return $btn2;
                     })
                     ->addColumn('delete', function($row){     
                         $btn3 = '<a href="#" data-rowid="' . $row->id . '" class="btn btn-danger btn-sm btn-delete" title="Delete"><i class="fa fa-trash"></i></a> ';
                         return $btn3;
                     })
-                    ->rawColumns(['view','edit','delete'])                  
+                    ->rawColumns(['view','edit','delete']) 
+                    // ->removeColumn('des_id')                  
                     ->make(true);
          }
 
@@ -137,6 +142,8 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, $id)
     {
+        dd($request->all(),$id);
+        die();
         
         $request->validate([
             'name' => 'required|string|max:255',
@@ -155,7 +162,7 @@ class EmployeeController extends Controller
         $user->image =isset($request->image)?$path:'';
         $user->save();
 
-        return redirect('users')->with('success', 'Successfully Updated');  
+        // return redirect('users')->with('success', 'Successfully Updated');  
 
         
     }

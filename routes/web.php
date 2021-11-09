@@ -29,7 +29,7 @@ use App\Http\Controllers\EmployeeController;
 // });
 
 
-// Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     Route::get('users',[EmployeeController::class,'index']);
 
@@ -43,6 +43,6 @@ use App\Http\Controllers\EmployeeController;
     ]);
 
     Route::get('delete-user/{id}',[EmployeeController::class,'deleteUser']);
-// });
+});
 
 require __DIR__.'/auth.php';
