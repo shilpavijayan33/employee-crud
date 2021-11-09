@@ -23,30 +23,29 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-
-        if ($request->ajax()) {
-
-    
+        if ($request->ajax()) {    
             $data = User::join('designations','designations.id','=','users.designation_id')->select('users.id','users.name','users.email','designations.name as designation')->get();
             return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('view', function($row){     
-                        $btn1 = '<a href="/users/'.$row->id.'" class="btn btn-primary btn-sm" title="View" target="_blank"><i class="fa fa-eye"></i></a>';    
+                        $btn1 = '<a href="#" class="btn btn-primary btn-sm btn-view" title="View" ><i class="fa fa-eye"></i></a>';    
                         return $btn1;
                     })
-                    ->addColumn('edit', function($row){     
-                        $btn2 = '<a href="/users/'.$row->id.'/edit" class="btn btn-info btn-sm" title="Edit" target="_blank"><i class="fa fa-pen"></i></a>'; 
+                    ->addColumn('edit', function($row){ 
+                        $btn2 = '<a href="#" class="btn btn-info btn-sm btn-edit" title="Edit"><i class="fa fa-pen"></i></a> ';
                         return $btn2;
                     })
                     ->addColumn('delete', function($row){     
-                        $btn3 = '<a class="btn btn-danger btn-sm" onClick="deleteUser('.$row->id.')" title="Delete" ><i class="fa fa-trash"></i></a> ';
+                        $btn3 = '<a href="#" data-rowid="' . $row->id . '" class="btn btn-danger btn-sm btn-delete" title="Delete"><i class="fa fa-trash"></i></a> ';
                         return $btn3;
                     })
                     ->rawColumns(['view','edit','delete'])                  
                     ->make(true);
          }
+
+         $designations=Designation::select('id','name')->get();
       
-        return view('employee.index');
+        return view('employee.index',compact('designations'));
     }
 
     /**
@@ -88,7 +87,7 @@ class EmployeeController extends Controller
         $user->email =$request->email;
         $user->password =Hash::make($password);
         $user->designation_id=$request->designation;
-        $user->image =isset($request->image)?$path:'';
+        $user->image =isset($request->image)?$path:NULL;
         $user->save();
 
         Mail::to($user->email)->send(new UserRegistration($user->name,$user->email,$password));

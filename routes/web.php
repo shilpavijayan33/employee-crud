@@ -14,19 +14,35 @@ use App\Http\Controllers\EmployeeController;
 |
 */
 
-Route::get('/', function () {
-    return view('employee.index');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Route::resource('users', EmployeeController::class)->names([
-    'index' => 'users.index',
-    'create' => 'users.create',
-    'show' => 'users.show',
-    'store' => 'users.store',
-    'update' => 'users.update',
-    // 'destroy' => 'users.destroy',
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth'])->name('dashboard');
 
 
-]);
+// Route::get('hello', function () {
+//     dd("dfd");
+//     return view('employee.index');
+// });
 
-Route::get('delete-user/{id}',[EmployeeController::class,'deleteUser']);
+
+// Route::middleware(['auth'])->group(function () {
+
+    Route::get('users',[EmployeeController::class,'index']);
+
+    Route::resource('users', EmployeeController::class)->names([
+        'index' => 'users.index',
+        'create' => 'users.create',
+        'show' => 'users.show',
+        'store' => 'users.store',
+        'update' => 'users.update',
+        // 'destroy' => 'users.destroy',
+    ]);
+
+    Route::get('delete-user/{id}',[EmployeeController::class,'deleteUser']);
+// });
+
+require __DIR__.'/auth.php';

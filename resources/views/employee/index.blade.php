@@ -56,6 +56,59 @@
                    
                   </tbody>
                 </table>
+
+                
+            <!--  -->
+            <div class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <form class="form" action="" method="POST">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Update Record</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="id">
+
+                                <div class="form-group">
+                                    <label for="name">Name</label>
+                                    <input type="text" name="name" class="form-control input-sm">
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Email</label>
+                                    <input type="text" name="email" class="form-control input-sm">
+                                </div>
+                                <div class="form-group">
+                                    <label for="dob">Designation</label>
+                                    <select class="form-control select2 select2-hidden-accessible" name="designation" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true" required>
+                                    <option value=""> Choose Designation </option>
+                                    @foreach($designations as $designation)
+                                    <option value="{{$designation->id}}"> {{$designation->name}} </option>
+                                    @endforeach
+                                  </select>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="dob">Image</label>
+                                    <input type="file" name="image" class="form-control input-sm">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                              
+                                <button type="submit" class="btn btn-primary btn-update">Update</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!--  -->
+
+
+                
               </div>
               <!-- /.card-body -->
             </div>
@@ -79,8 +132,7 @@
           var table = $('.data-table').DataTable({
               processing: true,
               serverSide: true,
-              ajax: "{{ route('users.index') }}",
-
+              ajax: "{{ route('users.index') }}",              
               columns: [
                   {data: 'id', name: 'id'},
                   {data: 'name', name: 'name'},
@@ -91,56 +143,86 @@
                   {data: 'delete', name: 'delete', orderable: false, searchable: false},
 
               ]
-          });
-          
-        });
+          });  
+   
 
+        // $.noConflict();
+        var token = ''
+        var modal = $('.modal')
+        var form = $('.form')
+        var btnUpdate = $('.btn-update');
+
+            $(document).on('click','.btn-delete',function(){
+             
+                var rowid = $(this).data('rowid')
+                var el = $(this)
+                swal({
+                title: "Change?",
+                text: "Are you sure you want to delete this employee?",
+                type: "success",
+                showCancelButton: !0,
+                confirmButtonText: "Yes, delete the user!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: !0
+                }).then(function (e) {
+
+                if (e.value === true) {
+                  // var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+
+                    $.ajax({
+                        type: 'GET',
+                        url: "delete-user/"+rowid,
+                        // data: {_token: CSRF_TOKEN,user:id},
+                        dataType: 'JSON',
+                        success: function (results) {                      
+                            swal("Done!","User deleted successfully !!" , "success"); 
+                            table.row(el.parents('tr'))
+                              .remove()
+                              .draw();                         
+                        }
+                    });
+
+                } else {
+                    e.dismiss;            
+                    swal("Cancelled", "User is safe :)", "error");                            
+                  }
+                }, function (dismiss) {
+                    return false;
+                })
+        })
       
-        function deleteUser(id){ 
+      
+       
+        $(document).on('click','.btn-edit',function(){ 
+            var rowData =  table.row($(this).parents('tr')).data()            
+            form.find('input[name="id"]').val(rowData.id)
+            form.find('input[name="name"]').val(rowData.name)
+            form.find('input[name="email"]').val(rowData.email)
+            form.find('input[name="designation"]').val(rowData.designation)
+            modal.modal()
+        })
+
+        btnUpdate.click(function(){
+            if(!confirm("Are you sure?")) return;
+            var formData = form.serialize()+'&_method=PUT&_token='+token
+            var updateId = form.find('input[name="id"]').val()
+            $.ajax({
+                type: "POST",
+                url: "/" + updateId,
+                data: formData,
+                success: function (data) {
+                    if (data.success) {
+                        table.draw();
+                        modal.modal('hide');
+                    }
+                }
+             }); //end ajax
+        })
+            
+      });
         
 
-            swal({
-            title: "Change?",
-            text: "Are you sure you want to delete this employee?",
-            type: "success",
-            showCancelButton: !0,
-            confirmButtonText: "Yes, delete the user!",
-            cancelButtonText: "No, cancel!",
-            reverseButtons: !0
-        }).then(function (e) {
-
-          if (e.value === true) {
-            // var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-
-              $.ajax({
-                  type: 'GET',
-                  url: "delete-user/"+id,
-                  // data: {_token: CSRF_TOKEN,user:id},
-                  dataType: 'JSON',
-                  success: function (results) {
-
-                
-                          swal("Done!","User deleted successfully !!" , "success"); 
-                          location.href = "/users";
-
-                    
-                  }
-              });
-
-          } else {
-              e.dismiss;            
-              swal("Cancelled", "User is safe :)", "error");
-                      
-          }
-
-      }, function (dismiss) {
-          return false;
-      })
-
-      }
 </script>
   
-    @endsection 
-
-    
+@endsection     
 @endsection
