@@ -100,10 +100,11 @@
 
                 
             <!--  -->
-            <div class="modal fade editEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="addReminderLable" aria-hidden="true">
+            <div class="modal fade editEmployeeModal" id="editEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="addReminderLable" aria-hidden="true">
                 <div class="modal-dialog" role="document">
-                    <form class="form" action="" method="POST">
-                        <div class="modal-content">
+                <form action="#" method="POST" id="edit_employee_form" enctype="multipart/form-data">
+                @csrf
+                  <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">Update Record</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -111,35 +112,48 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <input type="hidden" name="id">
+                                <input type="hidden" name="id">                             
 
                                 <div class="form-group">
                                     <label for="name">Name</label>
-                                    <input type="text" name="name" class="form-control input-sm">
+                                    <input type="text" name="name" id="name" class="form-control input-sm" required>
+                                   
                                 </div>
                                 <div class="form-group">
                                     <label for="phone">Email</label>
-                                    <input type="text" name="email" class="form-control input-sm">
+                                    <input type="email" name="email" id="email" class="form-control input-sm" required>
+
+                                    <span id="emailerror" style="color: red;" >
+                                          **Email is missing
+                                    </span>
+                                   
                                 </div>
                                 <div class="form-group">
                                     <label for="dob">Designation</label>
-                                    <select class="form-control select2 select2-hidden-accessible" name="designation" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true" required>
+                                    <select class="form-control select2 select2-hidden-accessible" name="designation" id="designation" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true" required>
                                     <option value=""> Choose Designation </option>
                                     @foreach($designations as $designation)
                                     <option value="{{$designation->id}}"> {{$designation->name}} </option>
                                     @endforeach
                                   </select>
+
+                                 
                                 </div>
 
 
                                 <div class="form-group">
                                     <label for="dob">Image</label>
-                                    <input type="file" name="image" class="form-control input-sm">
+                                    <input type="file" name="image" id="image" class="form-control input-sm" accept="image/png, image/gif, image/jpeg">
+                                    
+
+                                    <span id="filesizeerror" style="color: red;" >
+                                          **File is too big
+                                    </span>
                                 </div>
                             </div>
                             <div class="modal-footer">
                               
-                                <button type="submit" class="btn btn-primary btn-update">Update</button>
+                            <button type="submit" id="edit_employee_btn" class="btn btn-success">Update Employee</button>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             </div>
                         </div>
@@ -149,6 +163,7 @@
             <!--  -->
 
 
+            
                 
               </div>
               <!-- /.card-body -->
@@ -167,15 +182,18 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
     <script type="text/javascript">
+
+       
     
-      $(document).ready(function(){
-          
+      $(document).ready(function(){ 
+        $('#emailerror').hide();
+        $('#filesizeerror').hide();
           var table = $('.data-table').DataTable({
               processing: true,
               serverSide: true,
               ajax: "{{ route('users.index') }}",              
               columns: [
-                  {data: 'id', name: 'id'},
+                  {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false,searchable: false},
                   {data: 'name', name: 'name'},
                   {data: 'email', name: 'email'},
                   {data: 'designation', name: 'designation'},  
@@ -188,10 +206,12 @@
    
 
         // $.noConflict();
+
+
         var token = ''
         var modal = $('.modal')
-        var form = $('.form')
-        var btnUpdate = $('.btn-update');
+        var form = $('#edit_employee_form')
+ 
 
             $(document).on('click','.btn-delete',function(){
              
@@ -233,19 +253,21 @@
         })
 
         $(document).on('click','.btn-edit',function(){ 
-            var rowData =  table.row($(this).parents('tr')).data()            
+         
+            var rowData =  table.row($(this).parents('tr')).data() 
+            console.log(rowData);           
             form.find('input[name="id"]').val(rowData.id)
             form.find('input[name="name"]').val(rowData.name)
             form.find('input[name="email"]').val(rowData.email)
-            form.find('select[name="designation"]').val(rowData.des_id)  
-           
+            form.find('select[name="designation"]').val(rowData.des_id)   
         })
 
         $(document).on('click','.btn-view',function(){ 
             var rowData =  table.row($(this).parents('tr')).data() 
             $("#nameview").text(rowData.name);
             $("#emailview").text(rowData.email);
-            $("#designationview").text(rowData.designation);           
+            $("#designationview").text(rowData.designation);    
+                
             if(rowData.image == null){
               var ur='{{ URL::asset('vendors/dist/img/user4-128x128.jpg') }}'
             }else{             
@@ -253,37 +275,31 @@
             }            
             $("#img-view").html('<img class="profile-user-img img-fluid img-circle" src="' + ur + '" />');           
            
-        })
-      
-      
+        });
        
-        $(document).on('click','.btn-edit',function(){ 
-            var rowData =  table.row($(this).parents('tr')).data()            
-            form.find('input[name="id"]').val(rowData.id)
-            form.find('input[name="name"]').val(rowData.name)
-            form.find('input[name="email"]').val(rowData.email)
-            form.find('select[name="designation"]').val(rowData.des_id)  
-           
-        })
-
-        btnUpdate.click(function(){
-            if(!confirm("Are you sure?")) return;
-            var tok = $('meta[name="csrf-token"]').attr('content');
-            var formData = form.serialize()+'&_method=PUT&_token='+tok
-            var updateId = form.find('input[name="id"]').val()
-           
-            $.ajax({
-                type: "POST",
-                url: "/sfsf/" + updateId,
-                data: formData,
-                // success: function (data) {
-                //     if (data.success) {
-                //         table.draw();
-                //         modal.modal('hide');
-                //     }
-                // }
-             }); //end ajax
-        })
+        $("#edit_employee_form").submit(function(e) {
+          e.preventDefault();
+          const fd = new FormData(this);         
+          $("#edit_employee_btn").text('Updating...');
+          $.ajax({
+            url: 'update-user',
+            method: 'post',
+            data: fd,
+            cache: false,
+            contentType: false,
+            processData: false,
+            dataType: 'json',
+            success: function(response) { 
+                      if (response.success) {
+                          table.draw();                          
+                          $("#edit_employee_btn").text('Update Employee');
+                          $("#edit_employee_form")[0].reset();
+                          $("#editEmployeeModal").modal('hide');
+                      }
+            }
+            
+           }); 
+        });
             
       });
         

@@ -38,9 +38,12 @@ Route::middleware(['auth'])->group(function () {
         'create' => 'users.create',
         'show' => 'users.show',
         'store' => 'users.store',
-        'update' => 'users.update',
+        // 'update' => 'users.update',
         // 'destroy' => 'users.destroy',
     ]);
+
+    Route::post('update-user',[EmployeeController::class,'updateUser']);
+
 
     Route::get('delete-user/{id}',[EmployeeController::class,'deleteUser']);
 });

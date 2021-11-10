@@ -36,13 +36,14 @@ class EmployeeController extends Controller
                         return $btn1;
                     })
                     ->addColumn('edit', function($row){ 
-                        $btn2 = '<a href="#" data-toggle="modal" data-target=".editEmployeeModal" class="btn btn-info btn-sm btn-edit" title="Edit"><i class="fa fa-pen"></i></a> ';
+                        $btn2 = '<a href="#" data-toggle="modal" data-target=".editEmployeeModal"  class="btn btn-info btn-sm btn-edit" title="Edit"><i class="fa fa-pen"></i></a> ';
                         return $btn2;
                     })
                     ->addColumn('delete', function($row){     
                         $btn3 = '<a href="#" data-rowid="' . $row->id . '" class="btn btn-danger btn-sm btn-delete" title="Delete"><i class="fa fa-trash"></i></a> ';
                         return $btn3;
                     })
+                   
                     ->rawColumns(['view','edit','delete']) 
                     // ->removeColumn('des_id')                  
                     ->make(true);
@@ -140,29 +141,28 @@ class EmployeeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateUser(Request $request)
     {
-        dd($request->all(),$id);
-        die();
-        
+              
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$id,
+            'email' => 'required|email|unique:users,email,'.$request->id,
             'image' => 'nullable|file|mimes:jpg,bmp,png|max:5000',
             'designation' => 'required|exists:designations,id',
         ]);
 
+
         if($request->file('image'))
             $path = Storage::putFile('user', $request->file('image'));
 
-        $user = User::find($id);
+        $user = User::find($request->id);
         $user->name = $request->name;
         $user->email =$request->email;
         $user->designation_id=$request->designation;
-        $user->image =isset($request->image)?$path:'';
-        $user->save();
-
-        // return redirect('users')->with('success', 'Successfully Updated');  
+        $user->image =isset($request->image)?$path:NULL;
+        $user->save();       
+        
+        return ['success' => true, 'message' => 'Updated Successfully'];
 
         
     }
