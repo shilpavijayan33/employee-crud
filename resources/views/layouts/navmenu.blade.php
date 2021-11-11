@@ -82,12 +82,18 @@
           </li>
 
           <li class="nav-item">
-            <a href="{{ route('users.create') }}" class="nav-link {{ (request()->is('users/create')) ? 'active' : '' }}">
-              <i class="nav-icon fas fa-logout"></i>
+          <form method="POST" action="/logout">
+          @csrf
+          <a href="{{url('logout')}}" onclick="event.preventDefault();
+                                                this.closest('form').submit();" class="nav-link {{ (request()->is('users/create')) ? 'active' : '' }}">
+              <i class="nav-icon fas fa-sign-out-alt"></i>
+            
               <p>
-Logout                <!-- <span class="right badge badge-danger">New</span> -->
-              </p>
+             Logout
+             </p>           
+             
             </a>
+            </form>     
           </li>
         </ul>
       </nav>
