@@ -85,7 +85,7 @@
           <form method="POST" action="/logout">
           @csrf
           <a href="{{url('logout')}}" onclick="event.preventDefault();
-                                                this.closest('form').submit();" class="nav-link {{ (request()->is('users/create')) ? 'active' : '' }}">
+                                                this.closest('form').submit();" class="nav-link {{ (request()->is('logout')) ? 'active' : '' }}">
               <i class="nav-icon fas fa-sign-out-alt"></i>
             
               <p>
